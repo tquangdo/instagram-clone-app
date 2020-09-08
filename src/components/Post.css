@@ -46,7 +46,10 @@
 .post__button {
   flex: 0;
   border: none;
-  color: #6082a3;
-  background-color: transparent;
+  color:black;
+  background-color: lightgray;
   border-top: 1px solid lightgray;
+}
+.post__button:hover {
+  cursor: pointer;
 }
