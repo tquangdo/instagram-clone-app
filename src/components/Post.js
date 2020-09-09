@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { db, tiSta } from '../utils/firebase/firebase'
 import './Post.css'
 
-function Post({ postId, user, username, caption, imageUrl }) {
+function Post({ postId, user, propsPost }) {
+  const { useravatar, username, caption, imageUrl } = propsPost
   const [comments, setComments] = useState([])
   const [comment, setComment] = useState('')
 
@@ -43,7 +44,7 @@ function Post({ postId, user, username, caption, imageUrl }) {
         <Avatar
           className="post__avatar"
           alt=''
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT9pwsN7oN02FOgJSVg2fe-R1dMMFRZi9J7Lw&usqp=CAU"
+          src={useravatar}
         />
         <h3>{username}</h3>
       </div>
@@ -52,12 +53,13 @@ function Post({ postId, user, username, caption, imageUrl }) {
         src={imageUrl}
         alt="" />
       {/* 3. USERNAME + CAPTION */}
-      <h4 className="post__text"><strong>{username}</strong> {caption}</h4>
-      {/* 4. POST */}
+      <h3 className="post__text"><strong>{caption}</strong></h3>
+      {/* 4. COMMENT */}
+      ================ Bình luận ================
       <div className="post__comments">
         {comments.map((comment, chiso) => (
           <p key={chiso}>
-            <strong>{comment.username}</strong> {comment.text}
+            <strong>{comment.username}</strong>: {comment.text}
           </p>
         ))}
       </div>
@@ -67,7 +69,7 @@ function Post({ postId, user, username, caption, imageUrl }) {
           <input
             className="post__input"
             type="text"
-            placeholder="Add a comment..."
+            placeholder="Viết bình luận..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />

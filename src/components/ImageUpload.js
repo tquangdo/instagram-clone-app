@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { tiSta, db, storage } from '../utils/firebase/firebase'
 import './ImageUpload.css'
 
-function ImageUpload({ username }) {
+function ImageUpload({ propsUser = null, isSignup = false, setStateUserImage = null }) {
   const [stateImage, setStateImage] = useState(null)
   const [stateProgress, setStateProgress] = useState(0)
   const [stateCaption, setStateCaption] = useState('')
@@ -27,24 +27,32 @@ function ImageUpload({ username }) {
         setStateProgress(progress)
       },
       (error) => {
-        // Error function ...
-        console.log(error)
         alert(error.message)
       },
       () => {
-        // complete function ...
         storage
           .ref("images")
           .child(stateImage.name)
           .getDownloadURL()
           .then(url => {
-            // post stateImage inside db
-            db.collection("posts").add({
-              timestamp: tiSta,
-              caption: stateCaption,
-              imageUrl: url,
-              username: username
-            })
+            if (isSignup) {
+              setStateUserImage(url)
+              //TH cần INS vô collection "users":
+              // db.collection("users").add({
+              //   username: username,
+              //   email: isSignup,
+              //   photoURL: url,
+              // })
+            } else {
+              db.collection("posts").add({
+                timestamp: tiSta,
+                caption: stateCaption,
+                imageUrl: url,
+                username: propsUser.displayName,
+                useravatar: propsUser.photoURL,
+              })
+            }
+            alert('Đã upload ảnh OK!')
             setStateProgress(0)
             setStateCaption("")
             setStateImage(null)
@@ -56,8 +64,8 @@ function ImageUpload({ username }) {
   return (
     <div className="imageupload">
       <progress className="imageupload__progress" value={stateProgress} max="100" />
-      <input type="text" placeholder='Hãy nhập tiêu đề post...'
-        onChange={event => setStateCaption(event.target.value)} value={stateCaption} />
+      {!isSignup && <input type="text" placeholder='Hãy nhập tiêu đề post...'
+        onChange={event => setStateCaption(event.target.value)} value={stateCaption} />}
       <input type="file" onChange={onHandleChange} />
       <Button variant="contained" onClick={onHandleUpload}>
         Upload

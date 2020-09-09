@@ -36,19 +36,22 @@ function App() {
   const [posts, setPosts] = useState([])
   const [open, setOpen] = useState(false)
   const [openSignIn, setOpenSignIn] = useState(false)
-  const [username, setUsername] = useState('')
+  //Phức tạp 2 chỗ: 1) chỉ có DLG "Signup" mới có "signupUsername" -> đẻ ra thêm "setUsername" ngoài "setStateAuthUser"
+  //2) thường tách làm 2 file riêng: Signup.js & Login.js -> TH này gom lại!
+  const [signupUsername, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [email, setEmail] = useState('')
-  const [user, setUser] = useState(null)
+  const [stateAuthUser, setStateAuthUser] = useState(null)
+  const [stateUserImage, setStateUserImage] = useState("https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT9pwsN7oN02FOgJSVg2fe-R1dMMFRZi9J7Lw&usqp=CAU")
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(authUser => {
-      if (authUser) {
+    const unsubscribe = auth.onAuthStateChanged(auth_user => {
+      if (auth_user) {
         // user has logged in...
-        setUser(authUser)
+        setStateAuthUser(auth_user)
       } else {
         // user has logged out...
-        setUser(null)
+        setStateAuthUser(null)
       }
     })
 
@@ -56,7 +59,7 @@ function App() {
       // perform some cleanup actions
       unsubscribe()
     }
-  }, [user, username])
+  }, [stateAuthUser])
 
 
   useEffect(() => {
@@ -77,10 +80,14 @@ function App() {
 
     auth
       .createUserWithEmailAndPassword(email, password)
-      .then(authUser => {
-        return authUser.user.updateProfile({
-          displayName: username
+      .then(auth_user => {
+        auth_user.user.updateProfile({
+          displayName: signupUsername,
+          photoURL: stateUserImage,
         })
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
       })
       .catch(error => alert(error.message))
 
@@ -130,7 +137,7 @@ function App() {
             <Input
               type="text"
               placeholder="username"
-              value={username}
+              value={signupUsername}
               onChange={e => setUsername(e.target.value)}
             />
             <Input
@@ -145,7 +152,8 @@ function App() {
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
-            <Button type="submit"
+            <ImageUpload isSignup setStateUserImage={setStateUserImage}/>
+            <Button variant="contained" type="submit"
               onClick={signUp}
             >Đăng kí tài khoản</Button>
           </form>
@@ -178,7 +186,7 @@ function App() {
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
-            <Button type="submit"
+            <Button variant="contained" type="submit"
               onClick={signIn}
             >Login</Button>
           </form>
@@ -192,10 +200,10 @@ function App() {
           src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
           alt=""
         />
-        {user ? (
+        {(stateAuthUser?.displayName) ? (
             <Button
               onClick={() => auth.signOut()}
-            >Xin chào: "{user?.displayName}"<br/>Logout</Button>
+            >Xin chào: "{stateAuthUser?.displayName}"<br/>Logout</Button>
         ) : (
             <div className="app__loginContainer">
               <Button onClick={() => setOpenSignIn(true)}>Login</Button>
@@ -210,8 +218,8 @@ function App() {
           {
             posts.map(({ id, post }) => (
               <Post key={id} postId={id}
-                user={user}
-                username={post.username} caption={post.caption} imageUrl={post.imageUrl} />
+                user={stateAuthUser}
+                propsPost={post} />
             ))
           }
         </div>
@@ -221,8 +229,8 @@ function App() {
           {instagramEmbeddedHtml('BSYEbdJhlHW')}
         </div>
       </div>
-      {user?.displayName ? (
-        <ImageUpload username={user.displayName} />
+      {(stateAuthUser?.displayName) ? (
+        <ImageUpload propsUser={stateAuthUser} />
       ) : (
           <h2 style={{ textAlign: 'center' }}>Bạn cần login để có thể up file</h2>
         )}
