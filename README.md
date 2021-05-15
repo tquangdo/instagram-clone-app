@@ -6,6 +6,8 @@
 ## FB
 ### authentication
 ![authentication](authentication.png)
+**************
+![signin-method](signin-method.png)
 ### db
 ![db](db.png)
 ### storage
