@@ -4,6 +4,7 @@
 ![structure](structure.png)
 
 ## FB
+![fb](https://img.shields.io/badge/firebase-deployed-orange)
 ### authentication
 ![authentication](authentication.png)
 **************
